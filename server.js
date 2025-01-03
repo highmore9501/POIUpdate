@@ -2,10 +2,22 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
+const cors = require("cors");
+const { pinyin } = require("pinyin");
+
 const app = express();
 const port = 5000;
 
 app.use(bodyParser.json());
+app.use(cors());
+
+const {
+  insertHistoryWithTags,
+  insertPOI,
+  insertTag,
+  removeTag,
+  getPinyinInitials,
+} = require("./src/database/database");
 
 // 设置数据库路径
 const dbPath = path.join(__dirname, "src/database/updata.sqlite");
@@ -76,6 +88,35 @@ app.get("/updates", (req, res) => {
   });
 });
 
-app.listen(port);
+app.get("/updateDataBase", (req, res) => {
+  const { event, data, authCode } = req.body;
+  console.log("event", event);
+  console.log("data", data);
+  console.log("authCode", authCode);
+  if (event === "add-new-tag") {
+    insertTag(data);
+  } else if (event === "remove-tag") {
+    removeTag(data);
+  } else if (event === "insert-poi") {
+    insertPOI(data);
+  } else if (event === "insert-history") {
+    insertHistoryWithTags(data);
+  }
+  res.status(200).send("success");
+});
+
+app.delete("/deleteUpdataRecord/:id", (req, res) => {
+  const { id } = req.params;
+  db.run("DELETE FROM updates WHERE id = ?", [id], function (err) {
+    if (err) {
+      return res.status(500).send(err.message);
+    }
+    res.status(200).send({ id });
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
 
 module.exports = { app, db };

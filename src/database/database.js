@@ -1,9 +1,17 @@
 const sqlite3 = require("sqlite3").verbose();
-const { getPinyinInitials } = require("../scripts/importPOIs");
-const fs = require("fs");
-const dotenv = require("dotenv");
+const dbPath = "database.sqlite";
 
-const dbPath = "data.sqlite";
+const { pinyin } = require("pinyin");
+
+// 获取拼音首字母
+function getPinyinInitials(str) {
+  return pinyin(str, {
+    style: pinyin.STYLE_FIRST_LETTER,
+    heteronym: false,
+  })
+    .flat()
+    .join("");
+}
 
 function fetchTags() {
   const db = new sqlite3.Database(dbPath);
@@ -23,14 +31,13 @@ function fetchTags() {
 
     db.close((err) => {
       if (err) {
-        logger.error(err.message);
+        console.log(err.message);
       }
     });
   });
 }
 
 function insertPOI(formData) {
-  logger.info("formData in insertPOI:", formData);
   const db = new sqlite3.Database(dbPath);
 
   return new Promise((resolve, reject) => {
@@ -45,7 +52,7 @@ function insertPOI(formData) {
       } finally {
         db.close((err) => {
           if (err) {
-            logger.error("Error closing database:", err.message);
+            console.log("Error closing database:", err.message);
           }
         });
       }
@@ -54,7 +61,6 @@ function insertPOI(formData) {
 }
 
 function insertOrUpdatePOI(db, formData) {
-  logger.info("formData in insertOrUpdatePOI:", formData);
   const { name, parent_id, description, href, level, weight } = formData;
   const pinyinInitials = getPinyinInitials(name);
 
@@ -72,18 +78,18 @@ function insertOrUpdatePOI(db, formData) {
       [parent_id, description, href, level, weight, name, pinyinInitials],
       function (err) {
         if (err) {
-          logger.error("Error inserting POI:", err);
+          console.error("Error inserting POI:", err);
           return reject(err);
         }
 
-        logger.info("Inserted POI with name:", name);
+        console.info("Inserted POI with name:", name);
 
         db.get(
           `SELECT id FROM POI WHERE name = ?`,
           [name],
           function (err, row) {
             if (err) {
-              logger.error("Error selecting POI:", err);
+              console.error("Error selecting POI:", err);
               return reject(err);
             }
 
@@ -586,4 +592,5 @@ module.exports = {
   clearOldHistory,
   getPOICountByTag,
   removeTag,
+  getPinyinInitials,
 };
