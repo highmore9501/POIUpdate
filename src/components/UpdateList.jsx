@@ -26,7 +26,7 @@ const UpdateList = () => {
 
   const deleteUpdate = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/deleteUpdataRecord/${id}`);
+      await axios.delete(`http://localhost:5000/deleteUpdateRecord/${id}`);
       setUpdates((prevUpdates) =>
         prevUpdates.filter((update) => update.id !== id)
       );

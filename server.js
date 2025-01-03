@@ -20,7 +20,7 @@ const {
 } = require("./src/database/database");
 
 // 设置数据库路径
-const dbPath = path.join(__dirname, "src/database/updata.sqlite");
+const dbPath = path.join(__dirname, "src/database/update.sqlite");
 
 // 创建数据库连接
 const db = new sqlite3.Database(dbPath, (err) => {
@@ -105,7 +105,7 @@ app.get("/updateDataBase", (req, res) => {
   res.status(200).send("success");
 });
 
-app.delete("/deleteUpdataRecord/:id", (req, res) => {
+app.delete("/deleteUpdateRecord/:id", (req, res) => {
   const { id } = req.params;
   db.run("DELETE FROM updates WHERE id = ?", [id], function (err) {
     if (err) {

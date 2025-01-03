@@ -1,5 +1,5 @@
 import React from "react";
-import UpdateList from "./components/UpdataList";
+import UpdateList from "./components/UpdateList";
 
 function App() {
   return (
