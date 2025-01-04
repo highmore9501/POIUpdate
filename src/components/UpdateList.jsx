@@ -38,10 +38,24 @@ const UpdateList = () => {
   };
 
   // 处理操作按钮点击
-  const handleAction = (record, action) => {
+  const handleAction = async (record, action) => {
     const { id, event, data, authCode } = record;
     if (action === "approve") {
-      // 处理 approve 操作
+      try {
+        const response = await axios.post("/updateDataBase", {
+          event,
+          data,
+          authCode,
+        });
+
+        if (response.status === 200) {
+          console.log("Request successful");
+        } else {
+          console.error("Request failed");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
     } else if (action === "reject") {
       // 处理 reject 操作
     } else if (action === "delete") {

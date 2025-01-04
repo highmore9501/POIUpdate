@@ -88,7 +88,7 @@ app.get("/updates", (req, res) => {
   });
 });
 
-app.get("/updateDataBase", (req, res) => {
+app.post("/updateDataBase", (req, res) => {
   const { event, data, authCode } = req.body;
   console.log("event", event);
   console.log("data", data);
