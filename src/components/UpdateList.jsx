@@ -42,22 +42,24 @@ const UpdateList = () => {
     const { id, event, data, authCode } = record;
     if (action === "approve") {
       try {
-        const response = await axios.post("/updateDataBase", {
-          event,
-          data,
-          authCode,
-        });
+        const response = await axios.post(
+          "http://localhost:5000/updateDataBase",
+          {
+            event,
+            data,
+            id,
+          }
+        );
 
         if (response.status === 200) {
           console.log("Request successful");
+          await deleteUpdate(id);
         } else {
           console.error("Request failed");
         }
       } catch (error) {
         console.error("Error:", error);
       }
-    } else if (action === "reject") {
-      // 处理 reject 操作
     } else if (action === "delete") {
       deleteUpdate(id);
     }
@@ -68,30 +70,38 @@ const UpdateList = () => {
       title: "ID",
       dataIndex: "id",
       key: "id",
+      width: 100,
     },
     {
       title: "Event",
       dataIndex: "event",
       key: "event",
+      width: 150,
     },
     {
       title: "Data",
       dataIndex: "data",
       key: "data",
+      width: 300,
+      ellipsis: true,
     },
     {
       title: "Auth Code",
       dataIndex: "authCode",
       key: "authCode",
+      width: 200,
+      ellipsis: true,
     },
     {
       title: "Timestamp",
       dataIndex: "timestamp",
       key: "timestamp",
+      width: 200,
     },
     {
       title: "Actions",
       key: "actions",
+      width: 200,
       render: (text, record) => (
         <span>
           <Button
@@ -100,13 +110,6 @@ const UpdateList = () => {
             style={{ marginRight: 8 }}
           >
             Approve
-          </Button>
-          <Button
-            type="default"
-            onClick={() => handleAction(record, "reject")}
-            style={{ marginRight: 8 }}
-          >
-            Reject
           </Button>
           <Button type="danger" onClick={() => handleAction(record, "delete")}>
             Delete
@@ -124,6 +127,8 @@ const UpdateList = () => {
         dataSource={updates}
         rowKey="id"
         loading={loading}
+        pagination={{ pageSize: 10 }}
+        scroll={{ x: 1000 }}
       />
     </div>
   );

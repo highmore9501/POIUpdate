@@ -1,5 +1,5 @@
 const sqlite3 = require("sqlite3").verbose();
-const dbPath = "database.sqlite";
+const dbPath = "src/database/database.sqlite";
 
 const { pinyin } = require("pinyin");
 
@@ -93,7 +93,7 @@ function insertOrUpdatePOI(db, formData) {
               return reject(err);
             }
 
-            logger.info("Selected POI with name:", name);
+            console.info("Selected POI with name:", name);
             resolve(row.id);
           }
         );
@@ -109,7 +109,7 @@ function updatePOITags(db, poiId, tags) {
       [poiId],
       (err, existingTags) => {
         if (err) {
-          logger.error("Error fetching existing POI_tags:", err);
+          console.error("Error fetching existing POI_tags:", err);
           return reject(err);
         }
 
@@ -133,7 +133,7 @@ function updatePOITags(db, poiId, tags) {
               [poiId, tagId],
               function (err) {
                 if (err) {
-                  logger.error("Error deleting POI_tag:", err);
+                  console.error("Error deleting POI_tag:", err);
                   return reject(err);
                 }
                 resolve();
@@ -149,7 +149,7 @@ function updatePOITags(db, poiId, tags) {
               [tag.tag_name],
               function (err, row) {
                 if (err) {
-                  logger.error("Error selecting tag:", err);
+                  console.error("Error selecting tag:", err);
                   return reject(err);
                 }
 
@@ -160,7 +160,7 @@ function updatePOITags(db, poiId, tags) {
                   [poiId, tagId],
                   function (err) {
                     if (err) {
-                      logger.error("Error inserting POI_tag:", err);
+                      console.error("Error inserting POI_tag:", err);
                       return reject(err);
                     }
                     resolve();
@@ -187,7 +187,7 @@ function insertRecommendations(db, poiId, recommendations) {
         [recommendation.audience],
         function (err, row) {
           if (err) {
-            logger.error("Error selecting target_audience:", err);
+            console.error("Error selecting target_audience:", err);
             return reject(err);
           }
 
@@ -198,7 +198,7 @@ function insertRecommendations(db, poiId, recommendations) {
             [poiId, audienceId, recommendation.recommendation],
             function (err) {
               if (err) {
-                logger.error("Error inserting recommend_reason:", err);
+                console.error("Error inserting recommend_reason:", err);
                 return reject(err);
               }
               resolve();
@@ -230,7 +230,7 @@ function fetchTargetAudience() {
 
     db.close((err) => {
       if (err) {
-        logger.error(err.message);
+        console.error(err.message);
       }
     });
   });
@@ -238,7 +238,7 @@ function fetchTargetAudience() {
 
 function searchPOIByName(keyword) {
   const db = new sqlite3.Database(dbPath);
-  logger.info("Searching POI by name or pinyin initials:", keyword);
+  console.info("Searching POI by name or pinyin initials:", keyword);
 
   return new Promise((resolve, reject) => {
     db.all(
@@ -255,7 +255,7 @@ function searchPOIByName(keyword) {
 
     db.close((err) => {
       if (err) {
-        logger.error(err.message);
+        console.error(err.message);
       }
     });
   });
@@ -263,7 +263,7 @@ function searchPOIByName(keyword) {
 
 function searchPOIByExactName(name) {
   const db = new sqlite3.Database(dbPath);
-  logger.info("Searching POI by exact name:", name);
+  console.info("Searching POI by exact name:", name);
 
   return new Promise((resolve, reject) => {
     db.all(`SELECT id, name FROM POI WHERE name = ?`, [name], (err, rows) => {
@@ -276,7 +276,7 @@ function searchPOIByExactName(name) {
 
     db.close((err) => {
       if (err) {
-        logger.error(err.message);
+        console.error(err.message);
       }
     });
   });
@@ -307,7 +307,7 @@ function getPOILevel(parent_id) {
 
     db.close((err) => {
       if (err) {
-        logger.error(err.message);
+        console.error(err.message);
       }
     });
   });
@@ -372,7 +372,7 @@ function insertHistoryWithTags(tags) {
 
     db.close((err) => {
       if (err) {
-        logger.error("Failed to close the database connection:", err);
+        console.error("Failed to close the database connection:", err);
       }
     });
   });
@@ -416,7 +416,7 @@ const getRecommendationsByPOIId = (poiId, db) => {
 
 const getPOIById = (id) => {
   const db = new sqlite3.Database(dbPath);
-  logger.info("Fetching POI by id:", id);
+  console.info("Fetching POI by id:", id);
   return new Promise((resolve, reject) => {
     db.get(
       `SELECT POI.*, parent.name as parent_name FROM POI
@@ -441,7 +441,7 @@ const getPOIById = (id) => {
         }
         db.close((err) => {
           if (err) {
-            logger.error("Failed to close the database connection:", err);
+            console.error("Failed to close the database connection:", err);
           }
         });
       }
@@ -462,7 +462,7 @@ function fetchHistory() {
 
     db.close((err) => {
       if (err) {
-        logger.error("Failed to close the database connection:", err);
+        console.error("Failed to close the database connection:", err);
       }
     });
   });
@@ -481,7 +481,7 @@ function clearOldHistory(timestamp) {
 
     db.close((err) => {
       if (err) {
-        logger.error("Failed to close the database connection:", err);
+        console.error("Failed to close the database connection:", err);
       }
     });
   });
@@ -539,7 +539,7 @@ function getPOICountByTag(tagText) {
 
     db.close((err) => {
       if (err) {
-        logger.error(err.message);
+        console.error(err.message);
       }
     });
   });
@@ -571,7 +571,7 @@ function removeTag(tagText) {
 
     db.close((err) => {
       if (err) {
-        logger.error(err.message);
+        console.error(err.message);
       }
     });
   });

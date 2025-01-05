@@ -20,16 +20,16 @@ const {
 } = require("./src/database/database");
 
 // 设置数据库路径
-const dbPath = path.join(__dirname, "src/database/update.sqlite");
+const updateDbPath = path.join(__dirname, "src/database/update.sqlite");
 
 // 创建数据库连接
-const db = new sqlite3.Database(dbPath, (err) => {
+const updateDb = new sqlite3.Database(updateDbPath, (err) => {
   if (err) {
     console.error("Could not connect to database", err);
   } else {
     console.log("Connected to database");
     // 创建一个表来存储更新
-    db.run(
+    updateDb.run(
       `CREATE TABLE IF NOT EXISTS updates (
         id INTEGER PRIMARY KEY,
         event TEXT,
@@ -48,6 +48,15 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
+const deleteRecordById = (id, res) => {
+  updateDb.run("DELETE FROM updates WHERE id = ?", [id], function (err) {
+    if (err) {
+      return res.status(500).send(err.message);
+    }
+    res.status(200).send({ id });
+  });
+};
+
 // 接收用户更新
 app.post("/update", (req, res) => {
   const { event, data, authCode } = req.body;
@@ -60,7 +69,7 @@ app.post("/update", (req, res) => {
     dataString = data;
   }
 
-  db.run(
+  updateDb.run(
     "INSERT INTO updates (event, data, authCode) VALUES (?, ?, ?)",
     [event, dataString, authCode],
     function (err) {
@@ -80,7 +89,7 @@ app.get("/checkupdate", (req, res) => {
 });
 
 app.get("/updates", (req, res) => {
-  db.all("SELECT * FROM updates", [], (err, rows) => {
+  updateDb.all("SELECT * FROM updates", [], (err, rows) => {
     if (err) {
       return res.status(500).send(err.message);
     }
@@ -88,35 +97,47 @@ app.get("/updates", (req, res) => {
   });
 });
 
-app.post("/updateDataBase", (req, res) => {
-  const { event, data, authCode } = req.body;
+app.post("/updateDataBase", async (req, res) => {
+  const { event, data, id } = req.body;
   console.log("event", event);
   console.log("data", data);
-  console.log("authCode", authCode);
+  console.log("authCode", id);
   if (event === "add-new-tag") {
-    insertTag(data);
+    await insertTag(data);
   } else if (event === "remove-tag") {
-    removeTag(data);
+    await removeTag(data);
   } else if (event === "insert-poi") {
-    insertPOI(data);
+    const formData = JSON.parse(data);
+    await insertPOI(formData);
   } else if (event === "insert-history") {
-    insertHistoryWithTags(data);
+    await insertHistoryWithTags(data);
   }
-  res.status(200).send("success");
+  deleteRecordById(id, res);
 });
 
 app.delete("/deleteUpdateRecord/:id", (req, res) => {
   const { id } = req.params;
-  db.run("DELETE FROM updates WHERE id = ?", [id], function (err) {
-    if (err) {
-      return res.status(500).send(err.message);
-    }
-    res.status(200).send({ id });
-  });
+  deleteRecordById(id, res);
 });
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-module.exports = { app, db };
+// 捕获进程终止信号并关闭数据库连接
+const gracefulShutdown = () => {
+  console.log("Received shutdown signal, closing database connection...");
+  updateDb.close((err) => {
+    if (err) {
+      console.error("Error closing database connection", err);
+    } else {
+      console.log("Database connection closed");
+    }
+    process.exit(0);
+  });
+};
+
+process.on("SIGINT", gracefulShutdown); // 捕获 Ctrl+C 事件
+process.on("SIGTERM", gracefulShutdown); // 捕获 kill 命令
+
+module.exports = { app, updateDb };
