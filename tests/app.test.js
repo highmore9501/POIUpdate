@@ -1,5 +1,5 @@
 const request = require("supertest");
-const { app, db } = require("../server.js");
+const { app, updateDb } = require("../server.js");
 
 describe("API Endpoints", () => {
   describe("POST /update", () => {
@@ -31,7 +31,7 @@ describe("API Endpoints", () => {
 
       // 验证数据库中的数据
       return new Promise((resolve, reject) => {
-        db.get(
+        updateDb.get(
           "SELECT data FROM updates WHERE id = ?",
           [res.body.id],
           (err, row) => {

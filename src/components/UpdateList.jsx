@@ -3,6 +3,7 @@ import axios from "axios";
 import { Table, Button, message } from "antd";
 
 const serverUrl = process.env.REACT_APP_SERVER_URL;
+console.log("serverUrl:", serverUrl);
 
 const UpdateList = () => {
   const [updates, setUpdates] = useState([]);

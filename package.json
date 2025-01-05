@@ -16,10 +16,10 @@
   },
   "scripts": {
     "start-server": "cross-env NODE_ENV=production node server.js",
-    "start-client": "cross-env NODE_ENV=production react-scripts start",
+    "start-client": "dotenv -e .env.production cross-env NODE_ENV=production react-scripts start",
     "start": "concurrently \"npm run start-server\" \"npm run start-client\"",
     "dev-server": "cross-env NODE_ENV=development node server.js",
-    "dev-client": "cross-env NODE_ENV=development react-scripts start",
+    "dev-client": "dotenv -e .env cross-env NODE_ENV=development react-scripts start",
     "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -46,6 +46,7 @@
   "devDependencies": {
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
+    "dotenv-cli": "^8.0.0",
     "supertest": "^7.0.0"
   }
 }

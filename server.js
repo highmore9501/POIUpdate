@@ -3,7 +3,6 @@ const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 const cors = require("cors");
-const dotenv = require("dotenv");
 
 const app = express();
 const port = 5000;
@@ -18,13 +17,6 @@ const {
   removeTag,
   getPinyinInitials,
 } = require("./src/database/database");
-
-// 根据环境变量加载不同的 .env 文件
-if (process.env.NODE_ENV === "production") {
-  dotenv.config({ path: path.resolve(__dirname, ".env.production") });
-} else {
-  dotenv.config({ path: path.resolve(__dirname, ".env") });
-}
 
 // 设置数据库路径
 const updateDbPath = path.join(__dirname, "src/database/update.sqlite");
