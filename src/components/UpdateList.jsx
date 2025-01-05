@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Table, Button, message } from "antd";
 
+const serverUrl = process.env.REACT_APP_SERVER_URL;
+
 const UpdateList = () => {
   const [updates, setUpdates] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -11,7 +13,7 @@ const UpdateList = () => {
     const fetchUpdates = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:5000/updates");
+        const response = await axios.get(`${serverUrl}/updates`);
         setUpdates(response.data);
       } catch (error) {
         console.error("Error fetching updates:", error);
@@ -26,7 +28,7 @@ const UpdateList = () => {
 
   const deleteUpdate = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/deleteUpdateRecord/${id}`);
+      await axios.delete(`${serverUrl}/deleteUpdateRecord/${id}`);
       setUpdates((prevUpdates) =>
         prevUpdates.filter((update) => update.id !== id)
       );
@@ -42,14 +44,11 @@ const UpdateList = () => {
     const { id, event, data, authCode } = record;
     if (action === "approve") {
       try {
-        const response = await axios.post(
-          "http://localhost:5000/updateDataBase",
-          {
-            event,
-            data,
-            id,
-          }
-        );
+        const response = await axios.post(`${serverUrl}/updateDataBase`, {
+          event,
+          data,
+          id,
+        });
 
         if (response.status === 200) {
           console.log("Request successful");
